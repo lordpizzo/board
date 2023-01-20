@@ -1,4 +1,3 @@
-import { Heading, Text, Flex } from "@chakra-ui/react";
 import Head from "next/head";
 
 export default function Home() {
@@ -7,12 +6,11 @@ export default function Home() {
 			<Head>
 				<title>Board - ToDo app</title>
 			</Head>
-			<Flex>
-
-				<Heading color="purple" noOfLines={0}>
-					Primeiro aplicativo com <Text color="blue">next.js</Text>
-				</Heading>
-			</Flex>
+			<div>
+				<p>
+					Primeiro aplicativo com next.js
+				</p>
+			</div>
 		</>
 	)
 }
