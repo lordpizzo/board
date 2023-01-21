@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import styles from './styles.module.scss'
-import { FiPlus } from 'react-icons/fi'
+import { FiPlus, FiCalendar, FiEdit, FiTrash, FiClock } from 'react-icons/fi'
+import { SupportButton } from '@/src/components/SupportButton'
 export default function Board() {
 	return (
 		<>
@@ -17,14 +18,41 @@ export default function Board() {
 				<h1>Você tem duas tarefas</h1>
 
 				<section>
-					<article>
+					<article className={styles.taskList}>
 						<p>Aprender next</p>
-						<div className={styles.task}>
+						<div className={styles.actions}>
+							<div>
+								<div>
+									<FiCalendar size={20} color="#FFB800" />
+									<time>21 Janeiro 2023</time>
+								</div>
+								<button>
+									<FiEdit size={20} color="FFF" />
+									<span>Editar</span>
+								</button>
+							</div>
+							<button>
+								<FiTrash size={20} color="#FF3636" />
+								<span>Excluir</span>
+							</button>
 
 						</div>
 					</article>
 				</section>
 			</main>
+			<div className={styles.vipContainer}>
+				<h3>
+					Obrigado por apoiar esse projeto
+				</h3>
+				<div>
+					<FiClock size={28} color="#FFF" />
+					<time>
+						Ultima doaçãofoi a 3 meses
+					</time>
+				</div>
+			</div>
+
+			<SupportButton />
 		</>
 	)
 }
