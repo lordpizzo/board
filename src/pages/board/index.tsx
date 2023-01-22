@@ -6,7 +6,9 @@ import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/react'
 import { FormEvent, useState } from 'react'
 import firesotreDB from '../../services/firebaseConnection'
-import { collection, addDoc } from "firebase/firestore"; 
+import { collection, addDoc } from "firebase/firestore";
+import { format } from 'date-fns'
+import Link from 'next/link'
 
 interface Props {
 	user: {
@@ -19,6 +21,7 @@ interface Props {
 export default function Board({ user }: Props) {
 
 	const [input, setInput] = useState('')
+	const [taskList, setTaskList] = useState([])
 
 	async function handleAddTask(e: FormEvent) {
 		e.preventDefault()
@@ -33,11 +36,23 @@ export default function Board({ user }: Props) {
 			userId: user.email,
 			name: user.name
 		})
-		.then((documento) => {
-			console.log('Cadastrado com Sucesso')
-		}).catch((error) => {
-			console.log('Deu Erro', error)
-		})
+			.then((documento) => {
+				console.log('Cadastrado com Sucesso')
+				let data = {
+					id: documento.id,
+					created: new Date(),
+					createdFormated: format(new Date(), 'dd MMMM yyyy'),
+					tarefa: input,
+					userId: user.email,
+					name: user.name
+				}
+
+				setTaskList([...taskList, data])
+				setInput('')
+
+			}).catch((error) => {
+				console.log('Deu Erro', error)
+			})
 
 	}
 
@@ -60,26 +75,31 @@ export default function Board({ user }: Props) {
 				<h1>Você tem duas tarefas</h1>
 
 				<section>
-					<article className={styles.taskList}>
-						<p>Aprender next</p>
-						<div className={styles.actions}>
-							<div>
-								<div>
-									<FiCalendar size={20} color="#FFB800" />
-									<time>21 Janeiro 2023</time>
-								</div>
-								<button>
-									<FiEdit size={20} color="FFF" />
-									<span>Editar</span>
-								</button>
-							</div>
-							<button>
-								<FiTrash size={20} color="#FF3636" />
-								<span>Excluir</span>
-							</button>
+					{taskList.map(task => (
 
-						</div>
-					</article>
+						<article className={styles.taskList} key={task.id}>
+							<Link href={`/board/${task.id}`}>
+								<p>{task.tarefa}</p>
+								<div className={styles.actions}>
+									<div>
+										<div>
+											<FiCalendar size={20} color="#FFB800" />
+											<time>{task.createdFormated}</time>
+										</div>
+										<button>
+											<FiEdit size={20} color="FFF" />
+											<span>Editar</span>
+										</button>
+									</div>
+									<button>
+										<FiTrash size={20} color="#FF3636" />
+										<span>Excluir</span>
+									</button>
+
+								</div>
+							</Link>
+						</article>
+					))}
 				</section>
 			</main>
 			<div className={styles.vipContainer}>
