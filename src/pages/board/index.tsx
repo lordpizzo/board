@@ -117,7 +117,7 @@ export default function Board({ user, dados }: Props) {
 				<div>
 					<FiClock size={28} color="#FFF" />
 					<time>
-						Ultima doaçãofoi a 3 meses
+						Ultima doação foi a 3 meses
 					</time>
 				</div>
 			</div>
