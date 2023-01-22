@@ -6,7 +6,7 @@ import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/react'
 import { FormEvent, useState } from 'react'
 import firesotreDB from '../../services/firebaseConnection'
-import { collection, addDoc, doc, getDoc, query, getDocs, orderBy, where } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc, query, getDocs, orderBy, where, deleteDoc } from "firebase/firestore";
 import { format } from 'date-fns'
 import Link from 'next/link'
 
@@ -64,6 +64,22 @@ export default function Board({ user, dados }: Props) {
 
 	}
 
+	async function handleDelete(id: string) {
+		const tarefasCollection = collection(firesotreDB, "tarefas")
+		console.log("id da tarefa", id)
+		const tarefasDoc = doc(tarefasCollection, id)
+		await deleteDoc(tarefasDoc).then(() => {
+			console.log('Excluido com sucesso')
+			let taskDeleted = taskList.filter(item => {
+				return (item.id !== id)
+			})
+			setTaskList(taskDeleted)
+		})
+		.catch((error) => {
+			console.log('Erro ao excluir: ', error)
+		})
+	}
+
 	return (
 		<>
 			<Head>
@@ -88,6 +104,7 @@ export default function Board({ user, dados }: Props) {
 						<article className={styles.taskList} key={task.id}>
 							<Link href={`/board/${task.id}`}>
 								<p>{task.tarefa}</p>
+								</Link>
 								<div className={styles.actions}>
 									<div>
 										<div>
@@ -99,13 +116,13 @@ export default function Board({ user, dados }: Props) {
 											<span>Editar</span>
 										</button>
 									</div>
-									<button>
+									<button onClick={() => handleDelete(task.id)}>
 										<FiTrash size={20} color="#FF3636" />
 										<span>Excluir</span>
 									</button>
 
 								</div>
-							</Link>
+							
 						</article>
 					))}
 				</section>
@@ -146,7 +163,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 		orderBy('created', 'asc'))
 
 	const tarefasSnap = await getDocs(tarefasQuery)
-	let dados = [{}]
+	let dados = []
 	tarefasSnap.forEach((doc) => {
 		dados.push(
 			{
