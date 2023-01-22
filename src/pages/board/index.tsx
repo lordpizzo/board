@@ -6,23 +6,32 @@ import { GetServerSideProps } from 'next'
 import { getSession } from 'next-auth/react'
 import { FormEvent, useState } from 'react'
 import firesotreDB from '../../services/firebaseConnection'
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc, query, getDocs, orderBy, where } from "firebase/firestore";
 import { format } from 'date-fns'
 import Link from 'next/link'
+
+type TaskList = {
+	id: string,
+	create: string | Date,
+	createdFormated?: string,
+	tarefa: string,
+	userId: string,
+	name: string
+}
 
 interface Props {
 	user: {
 		name: string,
 		email: string,
 		image: string
-	}
+	},
+	dados: string
 }
 
-export default function Board({ user }: Props) {
-
+export default function Board({ user, dados }: Props) {
+	console.log(dados)
 	const [input, setInput] = useState('')
-	const [taskList, setTaskList] = useState([])
-
+	const [taskList, setTaskList] = useState<TaskList[]>(JSON.parse(dados))
 	async function handleAddTask(e: FormEvent) {
 		e.preventDefault()
 		if (input === '') {
@@ -37,7 +46,6 @@ export default function Board({ user }: Props) {
 			name: user.name
 		})
 			.then((documento) => {
-				console.log('Cadastrado com Sucesso')
 				let data = {
 					id: documento.id,
 					created: new Date(),
@@ -72,7 +80,7 @@ export default function Board({ user }: Props) {
 						<FiPlus size={25} color="#17181a" />
 					</button>
 				</form>
-				<h1>Você tem duas tarefas</h1>
+				<h1>Você tem {taskList.length} {taskList.length === 1 ? 'tarefa' : 'tarefas'}</h1>
 
 				<section>
 					{taskList.map(task => (
@@ -131,9 +139,29 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 		}
 	}
 
+	const tarefasCollection = collection(firesotreDB, "tarefas")
+
+	const tarefasQuery = query(tarefasCollection,
+		where('userId', '==', session.user.email),
+		orderBy('created', 'asc'))
+
+	const tarefasSnap = await getDocs(tarefasQuery)
+	let dados = [{}]
+	tarefasSnap.forEach((doc) => {
+		dados.push(
+			{
+				id: doc.id,
+				createdFormated: format(doc.data().created.toDate(), 'dd MMMM yyyy'),
+				...doc.data()
+			}
+		)
+	})
+	dados = JSON.stringify(dados)
+
 	return {
 		props: {
-			user: session.user
+			user: session.user,
+			dados
 		}
 	}
 }
