@@ -7,7 +7,8 @@ import { getSession } from 'next-auth/react'
 import { FormEvent, useState } from 'react'
 import firesotreDB from '../../services/firebaseConnection'
 import { collection, addDoc, doc, getDoc, query, getDocs, orderBy, where, deleteDoc, updateDoc } from "firebase/firestore";
-import { format } from 'date-fns'
+import { format, formatDistance } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 import Link from 'next/link'
 import { createSolutionBuilderHost } from 'typescript'
 
@@ -22,6 +23,8 @@ type TaskList = {
 
 interface Props {
 	user: {
+		vip: boolean,
+		lastDonate: string | Date,
 		name: string,
 		email: string,
 		image: string
@@ -33,6 +36,8 @@ export default function Board({ user, dados }: Props) {
 	const [input, setInput] = useState('')
 	const [taskList, setTaskList] = useState<TaskList[]>(JSON.parse(dados))
 	const [taskEdit, setTaskEdit] = useState<TaskList | null>(null)
+
+	console.log(user.lastDonate)
 
 	async function handleAddTask(e: FormEvent) {
 		e.preventDefault()
@@ -153,10 +158,12 @@ export default function Board({ user, dados }: Props) {
 										<FiCalendar size={20} color="#FFB800" />
 										<time>{task.createdFormated}</time>
 									</div>
-									<button onClick={() => handleEditTask(task)}>
-										<FiEdit size={20} color="FFF" />
-										<span>Editar</span>
-									</button>
+									{user.vip && (
+										<button onClick={() => handleEditTask(task)}>
+											<FiEdit size={20} color="FFF" />
+											<span>Editar</span>
+										</button>
+									)}
 								</div>
 								<button onClick={() => handleDelete(task.id)}>
 									<FiTrash size={20} color="#FF3636" />
@@ -169,17 +176,19 @@ export default function Board({ user, dados }: Props) {
 					))}
 				</section>
 			</main>
-			<div className={styles.vipContainer}>
-				<h3>
-					Obrigado por apoiar esse projeto
-				</h3>
-				<div>
-					<FiClock size={28} color="#FFF" />
-					<time>
-						Ultima doação foi a 3 meses
-					</time>
+			{user.vip && (
+				<div className={styles.vipContainer}>
+					<h3>
+						Obrigado por apoiar esse projeto
+					</h3>
+					<div>
+						<FiClock size={28} color="#FFF" />
+						<time>
+							Ultima doação foi a {formatDistance(new Date(user.lastDonate), new Date(), {locale: ptBR})}
+						</time>
+					</div>
 				</div>
-			</div>
+			)}
 
 			<SupportButton />
 		</>
@@ -219,7 +228,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
 
 	return {
 		props: {
-			user: session.user,
+			user: {
+				vip: session?.vip,
+				lastDonate: session?.lastDonate,
+				...session.user
+			},
 			dados
 		}
 	}

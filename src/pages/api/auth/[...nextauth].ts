@@ -19,12 +19,13 @@ export const authOptions = {
 			const usersCollection = collection(firesotreDB, "users")
 			const userDocRef = doc(usersCollection, session.user.email)
 			const lastDonate = await getDoc(userDocRef).then(doc => {
-				return true
+				return doc.data()?.lastDonate.toDate()
 			}).catch(error => {
-				return false
+				return null
 			})
 
-			session.vip = lastDonate
+			session.vip = lastDonate !== null ? true : false
+			session.lastDonate = lastDonate
 			return session
 		},
 
