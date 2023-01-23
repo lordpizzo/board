@@ -20,7 +20,6 @@ interface Props {
 export default function Home({ dados }: Props) {
 
 	const [donaters, setDonaters] = useState<Donetor[]>(JSON.parse(dados))
-	console.log(donaters)
 
 	return (
 		<>

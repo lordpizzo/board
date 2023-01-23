@@ -25,7 +25,6 @@ interface TaskListProps {
 
 export default function Task({ data }: TaskListProps) {
 	const task = JSON.parse(data) as TaskList
-	console.log(task.name)
 
 	return (
 		<>
@@ -50,7 +49,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, params }) =>
 	const { id } = params;
 	const session = await getSession({ req })
 
-	if (!session?.user) {
+	if (!session?.vip) {
 		return {
 			redirect: {
 				destination: '/',

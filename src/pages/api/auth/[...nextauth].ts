@@ -1,5 +1,7 @@
 import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
+import firesotreDB from '../../../services/firebaseConnection'
+import { collection, addDoc, doc, getDoc, query, getDocs, orderBy, where, deleteDoc, updateDoc } from "firebase/firestore";
 
 export const authOptions = {
 	providers: [
@@ -14,6 +16,15 @@ export const authOptions = {
 			session.accessToken = token.accessToken
 			session.user.id = token.id
 
+			const usersCollection = collection(firesotreDB, "users")
+			const userDocRef = doc(usersCollection, session.user.email)
+			const lastDonate = await getDoc(userDocRef).then(doc => {
+				return true
+			}).catch(error => {
+				return false
+			})
+
+			session.vip = lastDonate
 			return session
 		},
 
