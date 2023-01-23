@@ -2,8 +2,26 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from '../styles/home.module.scss'
 import { GetStaticProps } from 'next'
+import firesotreDB from '../services/firebaseConnection'
+import { collection, addDoc, doc, getDoc, query, getDocs, orderBy, where, deleteDoc, updateDoc } from "firebase/firestore";
+import { useState } from "react";
 
-export default function Home() {
+type Donetor = {
+	id: string,
+	donate: boolean,
+	lastDonate: Date,
+	Image: string
+}
+
+interface Props {
+	dados: string
+}
+
+export default function Home({ dados }: Props) {
+
+	const [donaters, setDonaters] = useState<Donetor[]>(JSON.parse(dados))
+	console.log(donaters)
+
 	return (
 		<>
 			<Head>
@@ -18,12 +36,11 @@ export default function Home() {
 						e online.
 					</p>
 				</section>
-
+				{donaters.length !== 0 && <h3>Apoiadores: </h3>}
 				<div className={styles.donaters}>
-					<Image src="/images/board-user.svg" alt="apoiador" width={80} height={80} />
-					<Image src="/images/board-user.svg" alt="apoiador" width={80} height={80} />
-					<Image src="/images/board-user.svg" alt="apoiador" width={80} height={80} />
-					<Image src="/images/board-user.svg" alt="apoiador" width={80} height={80} />
+					{donaters.map(donator => (
+						<img src={donator.Image} key={donator.id} alt="apoiador" width={80} height={80} />
+					))}
 				</div>
 			</main>
 		</>
@@ -32,9 +49,22 @@ export default function Home() {
 
 export const getStaticProps: GetStaticProps = async () => {
 
+	const tarefasCollection = collection(firesotreDB, "users")
+	const tarefasQuery = query(tarefasCollection)
+	const tarefasSnapshot = await getDocs(tarefasQuery)
+	let dados = []
+	tarefasSnapshot.forEach((doc) => {
+		dados.push(
+			{
+				userId: doc.id,
+				...doc.data()
+			}
+		)
+	})
+	dados = JSON.stringify(dados)
 	return {
 		props: {
-
+			dados
 		},
 		revalidate: 60 * 60 //atualiza a cada 60 minutos
 	}
