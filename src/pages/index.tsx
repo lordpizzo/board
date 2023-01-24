@@ -5,6 +5,7 @@ import { GetStaticProps } from 'next'
 import firesotreDB from '../services/firebaseConnection'
 import { collection, addDoc, doc, getDoc, query, getDocs, orderBy, where, deleteDoc, updateDoc } from "firebase/firestore";
 import { useState } from "react";
+import imagem from '../../public/images/board-user.svg'
 
 type Donetor = {
 	id: string,
@@ -27,7 +28,7 @@ export default function Home({ dados }: Props) {
 				<title>Board - ToDo app</title>
 			</Head>
 			<main className={styles.contentContainer}>
-				<Image src="/images/board-user.svg" alt="board" width={300} height={300} />
+				<Image src={imagem} alt="board" width={300} height={300} />
 				<section className={styles.callToAction}>
 					<h1>Uma ferramenta para seu dia a dia Escreva, planeje e organize-se...</h1>
 					<p>

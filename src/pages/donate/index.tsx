@@ -6,11 +6,8 @@ import styles from './styles.module.scss'
 import firesotreDB from '../../services/firebaseConnection'
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore'
 import { useState } from 'react'
-
-
-/// CLIENT_ID AUiBTbQrW2samga_IJScDziFo4Hq3l7XPlPxSil6P3L8XT-JXXAjr47YZm0BDsFYnquP8viMDQLzJCZ_
-//// SECRET ENo_iUnfw_C9mi5C9yvKSgAhODsgUiruliE_Df1HReCYxtSYyhUhoTcS4uvXI_FdGAWl97hCMHaTsUsA
-////<script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"></script>
+import rocket from '../../../public/images/rocket.svg'
+import Image from 'next/image'
 interface Props {
 	user: {
 		name: string,
@@ -40,11 +37,11 @@ export default function Donate({ user }: Props) {
 				<title>Ajude a plataforma board a ficar online!</title>
 			</Head>
 			<main className={styles.container}>
-				<img src="/images/rocket.svg" alt="Seja Apoiador" />
+				<Image src={rocket} alt="Seja Apoiador" />
 
 				{vip && (
 					<div className={styles.vip}>
-						<img src={user.image} alt={user.name} />
+						<Image src={user.image} alt={user.name} width={50} height={50}/>
 						<span>Parabéns você é um apoiador!</span>
 					</div>
 				)}
