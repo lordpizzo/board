@@ -65,14 +65,25 @@ export const getServerSideProps: GetServerSideProps = async ({ req, params }) =>
 			const data = {
 				id: snapshot.id,
 				created: snapshot.data()?.created,
-				createdFormated: format(new Date(), 'dd MMMM yyyy'),
+				createdFormated: format(snapshot.data()?.created, 'dd MMMM yyyy'),
 				tarefa: snapshot.data()?.tarefa,
 				userId: snapshot.data()?.userId,
 				name: snapshot.data()?.name
 			}
-
 			return JSON.stringify(data)
 		})
+		.catch(() => {
+			return {}
+		})
+
+	if (Object.keys(data).length === 0) {
+		return {
+			redirect: {
+				destination: '/board',
+				permanent: false
+			}
+		}
+	}
 
 	return {
 		props: {
